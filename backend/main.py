@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import pickle
 import pandas as pd
 import numpy as np
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 
 app = FastAPI()
 
+# allow frontend requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,14 +16,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# load model
 model = pickle.load(open("artifacts/car_price_model.pkl","rb"))
-
-# serve frontend
-app.mount("/static", StaticFiles(directory="../frontend"), name="static")
-
-@app.get("/")
-def serve_frontend():
-    return FileResponse("../frontend/index.html")
 
 @app.post("/predict")
 def predict(data: dict):
@@ -42,7 +36,9 @@ def predict(data: dict):
     }])
 
     pred = model.predict(input_df)
-
     price = int(np.exp(pred)[0])
 
     return {"predicted_price": price}
+
+# serve frontend
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
