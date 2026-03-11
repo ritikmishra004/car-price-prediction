@@ -16,7 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-model = pickle.load(open("../artifacts/car_price_model.pkl","rb"))
+model = pickle.load(open("artifacts/car_price_model.pkl","rb"))
 
 # serve frontend
 app.mount("/static", StaticFiles(directory="../frontend"), name="static")
